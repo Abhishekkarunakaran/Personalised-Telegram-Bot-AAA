@@ -21,7 +21,7 @@ def greet(message):
   bot.send_message(message.chat.id,"*Welcome to\nKTU Personal Updates Bot*",parse_mode)
   bot.send_message(message.chat.id,'/new - for latest notification',parse_mode)
   
-@bot.message_handler(commands=['\new'])
+@bot.message_handler(commands=['new'])
 def sendMessage(message):
   msg=scrap()
   bot.send_message(message.chat.id,msg,parse_mode)

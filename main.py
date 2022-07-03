@@ -21,9 +21,19 @@ def greet(message):
   bot.send_message(message.chat.id,"*Welcome to\nKTU Personal Updates Bot*",parse_mode)
   bot.send_message(message.chat.id,'/new - for latest notification',parse_mode)
   
-@bot.message_handler(commands=['\new'])
+@bot.message_handler(commands=['new'])
 def sendMessage(message):
   msg=scrap()
+  bot.send_message(message.chat.id,msg,parse_mode)
+
+# A new feature :- 
+# When a use enters a number 'n' 
+# then the scrapper scrapes the n-th notification 
+  
+@bot.message_handler(content_types=['text'])
+def nthNotif(message):
+  print(message.text)
+  msg=scrap(int(message.text)-1)
   bot.send_message(message.chat.id,msg,parse_mode)
 
 # This needs any message ######### 
@@ -35,4 +45,8 @@ def sendMessage(message):
 #   bot.send_message(message. chat.id,msg,'MARKDOWN')
 ##################################
 
-bot.polling()
+def main():
+  bot.polling()
+
+if __name__ == '__main__':
+    main() 

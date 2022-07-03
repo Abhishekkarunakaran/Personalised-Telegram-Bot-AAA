@@ -1,11 +1,14 @@
 import requests
 from bs4 import BeautifulSoup
 
-def scrap():
+
+
+def scrap(lt=0):
 #Making a GET request
   r = requests.get('https://ktu.edu.in/eu/core/announcements.htm')
-  
+  # lt = 0
   if r.status_code == 200 :
+    print("Scrapping website...")
     # Parsing the HTML
     soup = BeautifulSoup(r.content, 'html.parser')
     
@@ -14,17 +17,18 @@ def scrap():
     content = s.find_all('li')
     
     links = s.find_all('a')
-    sss = links[0].get('href').split(" ")
-    description = content[0].text
+    sss = links[lt].get('href').split(" ")
+    description = content[lt].text
     # if description[len(content[0].b.text)+1:] == "Notification" :
     #   description=""
       
     link ='https://ktu.edu.in' + sss[0].strip("\r\n") +sss[len(sss) - 1].strip("\t")
-    title = content[0].b.text
-    des = description[len(content[0].b.text)+1:].replace("Notification","").strip("\n")
-    print(link)
+    title = content[lt].b.text
+    des = description[len(content[lt].b.text)+1:].replace("Notification","").strip("\n")
     
     
-    message = f'*{title}*\n\n{des}\n\n[Download Notification]({link})'
+    message = f'*{title}*\n\n{des}\n\n{link}'
+
+    print("Successfully parsed!")
     
     return message

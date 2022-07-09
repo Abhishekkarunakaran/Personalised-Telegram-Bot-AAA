@@ -1,5 +1,6 @@
 import requests
 from bs4 import BeautifulSoup
+from filtration import filt
 
 
 
@@ -28,7 +29,7 @@ def scrap(lt=0):
     
     
     message = f'*{title}*\n\n{des}\n\n{link}'
-
+    filt(title)
     print("Successfully parsed!")
     
-    return message
+    return message 

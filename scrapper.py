@@ -28,8 +28,15 @@ def scrap(lt=0):
     des = description[len(content[lt].b.text)+1:].replace("Notification","").strip("\n")
     
     
-    message = f'*{title}*\n\n{des}\n\n{link}'
-    filt(title)
+    # message = f'*{title}*\n\n{des}\n\n{link}'
+    Dict = {}
+
+    Dict["title"] = title
+    Dict["description"] = des
+    Dict["link"] = link
+    # filt(title)
     print("Successfully parsed!")
     
-    return message 
+    print(Dict)
+    return Dict
+    # return message 

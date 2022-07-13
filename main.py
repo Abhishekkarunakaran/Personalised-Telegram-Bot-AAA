@@ -1,13 +1,11 @@
-# import requests
-# from bs4 import BeautifulSoup
-# import json
-# import re
+import sys
+import threading
 import json
 from msilib.schema import Error
 import re
+import time
 import telebot
 from scrapper import scrap
-# from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton
 from telebot.types import ReplyKeyboardMarkup, KeyboardButton, InlineKeyboardMarkup, InlineKeyboardButton
 
 bot_token = "5333091432:AAEE-MtnYqdrHo1N09LRBHIFW_BexsCs2pQ"
@@ -19,11 +17,10 @@ bot = telebot.TeleBot(bot_token)
 parse_mode = 'MARKDOWN'
 
 
-def notif_markup(text,url):
+def notif_markup(text, url):
     markup = InlineKeyboardMarkup()
     markup.add(InlineKeyboardButton(text, url=url))
     return markup
-
 
 
 @bot.message_handler(commands=['new'])
@@ -33,7 +30,7 @@ def sendMessage(message):
     try:
         msg = scrap()
         bot.send_message(message.chat.id, "\u2B55 "*10+"\n\n\U0001F4CC  *{0}*\n\n\U0001F4CE  {1}".format(
-            msg["title"], msg["description"]), parse_mode, reply_markup=notif_markup("\U0001F4E5 Notification",msg["link"]))
+            msg["title"], msg["description"]), parse_mode, reply_markup=notif_markup("\U0001F4E5 Notification", msg["link"]))
     except Exception as e:
         print(e)
 
@@ -66,6 +63,7 @@ def sendMessage(message):
 # Reply Keyboard
 with open('prg_sem_data.json') as json_file:
     prg_sem = json.load(json_file)
+
 
 def prg_Markup():
     markup = ReplyKeyboardMarkup(one_time_keyboard=True)
@@ -102,7 +100,7 @@ def data_collection(msg):
 
         # ? inst_db(msg.chat.id,msg.text)
 
-        print(msg.text+"\t"+str(msg.chat.id))
+        # print(msg.text+"\t"+str(msg.chat.id))
         try:
             bot.send_message(msg.chat.id,
                              "Select your *Semester*",
@@ -112,7 +110,7 @@ def data_collection(msg):
             print(e)
 
     elif(re.search("S*", msg.text)):
-        print(msg.text+"\t"+str(msg.chat.id))
+        # print(msg.text+"\t"+str(msg.chat.id))
         #         #TODO: fn() - enter the chat.id and sem into db
 
         #         #? updt_db(msg.chat.id,msg.text)
@@ -121,8 +119,29 @@ def data_collection(msg):
                          parse_mode)
 
 
+def send():
+    while True:
+        print("running the job...")
+        bot.send_message(int(865161907), "hai")
+        time.sleep(60)
+
+
 def main():
-    bot.polling()
+
+    try:
+
+        print("trying to thread...")
+        t = threading.Thread(target=send, daemon=True)
+        t.start()
+        print("thread started")
+
+        bot.polling(non_stop=True)
+
+        while t.is_alive():
+            t.join(1)
+    except KeyboardInterrupt:
+        print("exiting...")
+        sys.exit(1)
 
 
 if __name__ == '__main__':

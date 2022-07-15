@@ -7,10 +7,12 @@ import time
 import telebot
 from scrapper import scrap
 from telebot.types import ReplyKeyboardMarkup, KeyboardButton, InlineKeyboardMarkup, InlineKeyboardButton
+from db import pgdb, pgdbins, pgdbupd
+from filtration import filt
 
 bot_token = "5333091432:AAEE-MtnYqdrHo1N09LRBHIFW_BexsCs2pQ"
 
-chat_id = ["865161907", "722830299", "735059361"]
+# chat_id = ["865161907", "722830299", "735059361"]
 
 
 bot = telebot.TeleBot(bot_token)
@@ -22,13 +24,12 @@ def notif_markup(text, url):
     markup.add(InlineKeyboardButton(text, url=url))
     return markup
 
-
+#! function to test the bot
 @bot.message_handler(commands=['new'])
 def sendMessage(message):
-    #! To Remove
     print("got message")
     try:
-        msg = scrap()
+        msg = scrap(1)
         bot.send_message(message.chat.id, "\u2B55 "*10+"\n\n\U0001F4CC  *{0}*\n\n\U0001F4CE  {1}".format(
             msg["title"], msg["description"]), parse_mode, reply_markup=notif_markup("\U0001F4E5 Notification", msg["link"]))
     except Exception as e:
@@ -96,9 +97,8 @@ def greet(message):
 @bot.message_handler(content_types=['text'])
 def data_collection(msg):
     if msg.text in prg_sem:
-        # TODO: fn() - enter the chat.id and prg into db
 
-        # ? inst_db(msg.chat.id,msg.text)
+        pgdbins(msg.chat.id,msg.text)
 
         # print(msg.text+"\t"+str(msg.chat.id))
         try:
@@ -111,9 +111,7 @@ def data_collection(msg):
 
     elif(re.search("S*", msg.text)):
         # print(msg.text+"\t"+str(msg.chat.id))
-        #         #TODO: fn() - enter the chat.id and sem into db
-
-        #         #? updt_db(msg.chat.id,msg.text)
+        pgdbupd(msg.chat.id,msg.text)
         bot.send_message(msg.chat.id,
                          "_Let's start our journey together_",
                          parse_mode)
@@ -121,10 +119,19 @@ def data_collection(msg):
 
 def send():
     while True:
-        print("running the job...")
-        bot.send_message(int(865161907), "hai")
-        time.sleep(60)
-
+        # print("running the job...")
+        # bot.send_message(int(865161907), "hai")
+        # time.sleep(60)
+        listnot=scrap()
+        for i in reversed(range(len(listnot))):
+                listabc=filt(listnot[i]["title"])
+                print(listabc)
+                chatids=pgdb(listabc)
+                print(chatids)
+                for chat_id in chatids:
+                    bot.send_message(chat_id, "\u2B55 "*10+"\n\n\U0001F4CC  *{0}*\n\n\U0001F4CE  {1}".format(
+            listnot[i]["title"], listnot[i]["description"]), parse_mode, reply_markup=notif_markup("\U0001F4E5 Notification",listnot[i]["link"]))
+        time.sleep(9000)
 
 def main():
 

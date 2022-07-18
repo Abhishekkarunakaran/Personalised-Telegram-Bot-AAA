@@ -24,7 +24,6 @@ def notif_markup(text, url):
     markup.add(InlineKeyboardButton(text, url=url))
     return markup
 
-#! function to test the bot
 @bot.message_handler(commands=['new'])
 def sendMessage(message):
     print("got message")

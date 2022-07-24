@@ -1,7 +1,6 @@
 import sys
 import threading
 import json
-from msilib.schema import Error
 import re
 import time
 import telebot
@@ -9,8 +8,9 @@ from scrapper import scrap
 from telebot.types import ReplyKeyboardMarkup, KeyboardButton, InlineKeyboardMarkup, InlineKeyboardButton
 from db import pgdb, pgdbins, pgdbupd
 from filtration import filt
+import config
 
-bot_token = "5333091432:AAEE-MtnYqdrHo1N09LRBHIFW_BexsCs2pQ"
+bot_token = config.api_key
 
 # chat_id = ["865161907", "722830299", "735059361"]
 
@@ -23,6 +23,7 @@ def notif_markup(text, url):
     markup = InlineKeyboardMarkup()
     markup.add(InlineKeyboardButton(text, url=url))
     return markup
+
 
 @bot.message_handler(commands=['new'])
 def sendMessage(message):
@@ -95,9 +96,12 @@ def greet(message):
 
 @bot.message_handler(content_types=['text'])
 def data_collection(msg):
-    if msg.text in prg_sem:
 
-        pgdbins(msg.chat.id,msg.text)
+    if msg.text in prg_sem:
+        try:
+            pgdbins(msg.chat.id, msg.text)
+        except Exception as e:
+            print(e)
 
         # print(msg.text+"\t"+str(msg.chat.id))
         try:
@@ -110,7 +114,11 @@ def data_collection(msg):
 
     elif(re.search("S*", msg.text)):
         # print(msg.text+"\t"+str(msg.chat.id))
-        pgdbupd(msg.chat.id,msg.text)
+        try:
+            pgdbupd(msg.chat.id, msg.text)
+        except Exception as e:
+            print(e)
+
         bot.send_message(msg.chat.id,
                          "_Let's start our journey together_",
                          parse_mode)
@@ -119,18 +127,22 @@ def data_collection(msg):
 def send():
     while True:
         # print("running the job...")
-        # bot.send_message(int(865161907), "hai")
-        # time.sleep(60)
-        listnot=scrap()
+        listnot = scrap()
+        chatids = []
         for i in reversed(range(len(listnot))):
-                listabc=filt(listnot[i]["title"])
-                print(listabc)
-                chatids=pgdb(listabc)
-                print(chatids)
+            listabc = filt(listnot[i]["title"])
+            print(listabc)
+            try:
+                chatids = pgdb(listabc)
+            except Exception as e:
+                print(e)
+            print(chatids)
+            if len(chatids) != 0:
                 for chat_id in chatids:
                     bot.send_message(chat_id, "\u2B55 "*10+"\n\n\U0001F4CC  *{0}*\n\n\U0001F4CE  {1}".format(
-            listnot[i]["title"], listnot[i]["description"]), parse_mode, reply_markup=notif_markup("\U0001F4E5 Notification",listnot[i]["link"]))
-        time.sleep(9000)
+                        listnot[i]["title"], listnot[i]["description"]), parse_mode, reply_markup=notif_markup("\U0001F4E5 Notification", listnot[i]["link"]))
+        time.sleep(900)
+
 
 def main():
 
@@ -142,7 +154,6 @@ def main():
         print("thread started")
 
         bot.polling(non_stop=True)
-
         while t.is_alive():
             t.join(1)
     except KeyboardInterrupt:
